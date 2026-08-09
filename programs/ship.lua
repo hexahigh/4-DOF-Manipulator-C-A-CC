@@ -35,14 +35,14 @@ local function play(num)
 		speaker.playNote("chime", 2, 12)
 		sleep(0.3)
 		speaker.playNote("chime", 2, 15)
-	-- Fail
+		-- Fail
 	elseif num == 2 then
 		speaker.playNote("didgeridoo", 2, 18)
 		sleep(0.3)
 		speaker.playNote("didgeridoo", 2, 12)
 		sleep(0.3)
 		speaker.playNote("didgeridoo", 2, 6)
-	-- Undock
+		-- Undock
 	elseif num == 3 then
 		speaker.playNote("chime", 2, 16)
 		sleep(0.3)
@@ -51,6 +51,9 @@ local function play(num)
 		speaker.playNote("chime", 2, 13)
 		sleep(0.3)
 		speaker.playNote("chime", 2, 11)
+		-- Dock
+	elseif num == 4 then
+		speaker.playNote("chime", 2, 8)
 	end
 end
 
@@ -110,6 +113,7 @@ end
 while true do
 	-- Check if wanna dock (button)
 	if redstone.getInput("left") then
+		play(4)
 		local x, y, z = gps.locate(1, false)
 		local raw = {
 			north = (north.getRelativeAngle() + geometry.ORIENTATION) % 360,
