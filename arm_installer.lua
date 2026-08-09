@@ -172,6 +172,15 @@ local function setStartup(chr)
 		if c[1] ~= nil then
 			setConfig("length", c[1])
 		end
+
+		term.clear()
+		term.setCursorPos(1, 1)
+		print("What is this arm's unique ID?")
+		print("(Must be unique for each arm. Range 1-99.)")
+		local id = readValue()
+		if id[1] ~= nil then
+			setConfig("arm_id", id[1])
+		end
 	elseif chr == 2 then
 		file.writeLine('shell.run("/programs/ship")')
 		repeat

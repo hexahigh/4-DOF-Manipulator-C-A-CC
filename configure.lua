@@ -16,7 +16,8 @@ local function armMenu()
 	print("What do you want to configure?")
 	print("1. Arm Orientation")
 	print("2. Arm Length")
-	print("3. Exit")
+	print("3. Arm ID")
+	print("4. Exit")
 end
 
 local function shipMenu()
@@ -108,8 +109,17 @@ local function changeArm()
 	end
 
 	chr = tonumber(chr)
-	if chr == 3 then
+	if chr == 4 then
 		return
+	elseif chr == 3 then
+		term.clear()
+		term.setCursorPos(1, 1)
+		print("What is this arm's unique ID?")
+		print("(Must be unique for each arm. Range 1-99.)")
+		local c = readValue()
+		if c[1] ~= nil then
+			setConfig("arm_id", c[1])
+		end
 	elseif chr == 2 then
 		term.clear()
 		term.setCursorPos(1, 1)

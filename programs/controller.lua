@@ -5,10 +5,7 @@ local calculate = require("protocols.calculate")
 local movement = require("programs.movement")
 local geometry = require("protocols.geometry")
 
-local arm_id = os.getComputerID()
-if arm_id > 9000 then
-	error("Computer ID " .. arm_id .. " is too large for the channel scheme (max 9000)", 0)
-end
+local arm_id = geometry.ARM_ID or 1
 local arm_channel = channels.ARM_BASE + arm_id
 local ack_channel = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_ACK_OFFSET
 
@@ -24,12 +21,29 @@ local busy = false
 -- A ship is physically docked to this arm
 local docked = false
 
--- Incase other computers have not started up yet
-sleep(5)
 -- If chunk is loaded and arm is still docked
 if redstone.getAnalogInput("front") == 15 then
 	docked = true
-else
+end
+
+-- Broadcast heartbeats for 5 seconds so bearing computers can
+-- discover this arm controller before we send any commands.
+-- Each bearing scans for 5s — one heartbeat per second guarantees
+-- at least one falls inside its scan window.
+for _ = 1, 5 do
+	modem.transmit(channels.ARM_HEARTBEAT, arm_channel, {
+		id = arm_id,
+		channel = arm_channel,
+		status = docked and "docked" or "idle",
+		pos = { x = geometry.ARM.x, y = geometry.ARM.y, z = geometry.ARM.z },
+		radius = geometry.ARM_RADIUS,
+		initial_angle = geometry.INITIAL_ARM_ANGLE,
+	})
+	sleep(1)
+end
+
+-- Now that bearings have had time to discover this arm, calibrate
+if not docked then
 	speed.setTargetSpeed(-32)
 	movement.calibrate(1, modem, arm_id)
 	sleep(4)

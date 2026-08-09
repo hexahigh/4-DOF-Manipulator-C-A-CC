@@ -5,10 +5,7 @@ local calculate = require("protocols.calculate")
 local geometry = require("protocols.geometry")
 local args = { ... }
 
-local arm_id = os.getComputerID()
-if arm_id > 9000 then
-	error("Computer ID " .. arm_id .. " is too large for the channel scheme (max 9000)", 0)
-end
+local arm_id = geometry.ARM_ID or 1
 local ch = {
 	ring = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_RING_OFFSET,
 	limb1 = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_LIMB1_OFFSET,

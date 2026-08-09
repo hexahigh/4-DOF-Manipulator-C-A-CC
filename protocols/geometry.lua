@@ -17,6 +17,9 @@ local ship = 0
 -- Ship orientation when assembled
 local orientation = 0
 local offset = vector.new(0, 9, 0)
+-- Unique ID of this arm. Its radio channel is ARM_BASE + arm_id.
+-- Must be unique among all arms. Range 1-99.
+local arm_id = 1
 
 return {
 	-- Coordinates of the first block in the limb 1 bearing.
@@ -42,4 +45,5 @@ return {
 	LIMB_2 = math.rad(-155),
 
 	ORIENTATION = orientation,
+	ARM_ID = arm_id,
 }
