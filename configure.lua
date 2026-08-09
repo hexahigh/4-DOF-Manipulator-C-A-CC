@@ -6,8 +6,9 @@ local function firstMenu()
 	print("What do you want to configure?")
 	print("1. Arm Controller")
 	print("2. Ship")
-	print("3. Reinstall")
-	print("4. Exit")
+	print("3. Bearing")
+	print("4. Reinstall")
+	print("5. Exit")
 end
 
 local function armMenu()
@@ -218,6 +219,43 @@ local function changeShip()
 	end
 end
 
+local function changeBearing()
+	term.clear()
+	term.setCursorPos(1, 1)
+
+	local bearing_names = { "Ring Bearing", "Limb 1", "Limb 2", "Dock Bearing" }
+	local current_type, current_id
+
+	if fs.exists("/startup.lua") then
+		local file = fs.open("/startup.lua", "r")
+		local text = file.readAll()
+		file.close()
+		local btype, bid = text:match('arm_bearing",%s*(%d+)%s*,%s*(%d+)')
+		if btype and bid then
+			current_type = tonumber(btype)
+			current_id = tonumber(bid)
+		end
+	end
+
+	if current_type then
+		print(string.format("Current bearing: %s, Arm ID: %d",
+			bearing_names[current_type] or "Unknown", current_id))
+	else
+		print("Could not detect current bearing configuration.")
+	end
+	print("")
+	print("What is the new arm controller ID for this bearing?")
+	local c = readValue()
+	if c[1] ~= nil and current_type then
+		local startup = 'shell.run("/arm_bearing", ' .. current_type .. ', ' .. tostring(c[1]) .. ')'
+		local file = fs.open("/startup.lua", "w")
+		file.write(startup)
+		file.close()
+		print(string.format("Updated %s to arm ID %d.",
+			bearing_names[current_type] or "bearing", c[1]))
+	end
+end
+
 while true do
 	firstMenu()
 	local _, chr = os.pullEvent("char")
@@ -226,7 +264,7 @@ while true do
 	end
 
 	chr = tonumber(chr)
-	if chr == 4 then
+	if chr == 5 then
 		shell.run("reboot")
 	else
 		if chr == 1 then
@@ -234,6 +272,8 @@ while true do
 		elseif chr == 2 then
 			changeShip()
 		elseif chr == 3 then
+			changeBearing()
+		elseif chr == 4 then
 			shell.run("pastebin run ZGaypFce")
 			break
 		end

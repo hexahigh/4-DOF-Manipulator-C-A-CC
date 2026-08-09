@@ -243,13 +243,38 @@ local function setStartup(chr)
 			setConfig("orientation", 180)
 		end
 	elseif chr == 3 then
-		file.writeLine('shell.run("/arm_bearing", 1)')
+		term.clear()
+		term.setCursorPos(1, 1)
+		print("What is the arm controller's ID for this bearing?")
+		print("(Same as the Arm ID you set on the controller computer.)")
+		local id = readValue()
+		if id[1] ~= nil then
+			file.writeLine('shell.run("/arm_bearing", 1, ' .. tostring(id[1]) .. ')')
+		end
 	elseif chr == 4 then
-		file.writeLine('shell.run("/arm_bearing", 2)')
+		term.clear()
+		term.setCursorPos(1, 1)
+		print("What is the arm controller's ID for this bearing?")
+		local id = readValue()
+		if id[1] ~= nil then
+			file.writeLine('shell.run("/arm_bearing", 2, ' .. tostring(id[1]) .. ')')
+		end
 	elseif chr == 5 then
-		file.writeLine('shell.run("/arm_bearing", 3)')
+		term.clear()
+		term.setCursorPos(1, 1)
+		print("What is the arm controller's ID for this bearing?")
+		local id = readValue()
+		if id[1] ~= nil then
+			file.writeLine('shell.run("/arm_bearing", 3, ' .. tostring(id[1]) .. ')')
+		end
 	elseif chr == 6 then
-		file.writeLine('shell.run("/arm_bearing", 4)')
+		term.clear()
+		term.setCursorPos(1, 1)
+		print("What is the arm controller's ID for this bearing?")
+		local id = readValue()
+		if id[1] ~= nil then
+			file.writeLine('shell.run("/arm_bearing", 4, ' .. tostring(id[1]) .. ')')
+		end
 	elseif chr == 7 then
 		file.writeLine('shell.run("/programs/gyro")')
 	end
