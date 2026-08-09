@@ -68,7 +68,7 @@ end
 
 local function install()
 	print("Installing files..")
-	local base = "https://raw.githubusercontent.com/CraftxTD/4-DOF-Manipulator-C-A-CC/refs/heads/main/"
+	local base = "https://raw.githubusercontent.com/hexahigh/4-DOF-Manipulator-C-A-CC/refs/heads/main/"
 
 	local tree_file = "tree.lua"
 	shell.run("rm", "/" .. tree_file)

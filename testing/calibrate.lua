@@ -5,8 +5,17 @@ local calculate = require("protocols.calculate")
 local geometry = require("protocols.geometry")
 local args = { ... }
 
+local arm_id = os.getComputerID()
+local ch = {
+	ring = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_RING_OFFSET,
+	limb1 = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_LIMB1_OFFSET,
+	limb2 = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_LIMB2_OFFSET,
+	dock = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_DOCK_OFFSET,
+	ack = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_ACK_OFFSET,
+}
+
 local modem = peripheral.find("modem") or error("No modem", 0)
-modem.open(channels.CONTROLLER)
+modem.open(ch.ack)
 
 local degrees = {}
 -- Go to base position (0 degrees)
@@ -18,15 +27,15 @@ elseif args[1] == "n" then
 end
 
 print("Rotating limb 1 bearing..")
-modem.transmit(channels.LIMB_1, channels.CONTROLLER, degrees[1])
+modem.transmit(ch.limb1, ch.ack, degrees[1])
 
 print("Rotating limb 2 bearing..")
-modem.transmit(channels.LIMB_2, channels.CONTROLLER, degrees[2])
+modem.transmit(ch.limb2, ch.ack, degrees[2])
 
 print("Rotating dock bearing..")
-modem.transmit(channels.LIMB_DOCK_BEARING, channels.CONTROLLER, degrees[3])
+modem.transmit(ch.dock, ch.ack, degrees[3])
 
 -- Waits until everything has moved
 print("Rotating ring bearing..")
-modem.transmit(channels.LIMB_RING_BEARING, channels.CONTROLLER, degrees[3])
-network.poll(channels.CONTROLLER, 1)
+modem.transmit(ch.ring, ch.ack, degrees[3])
+network.poll(ch.ack, 1)

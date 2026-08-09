@@ -2,12 +2,12 @@ local network = {}
 
 -- Waits until a signal is received on a channel.
 function network.poll(receiveChannel, time)
-	local event, key, origin, data
+	local event, key, channel, _, data
 	-- Timer
 	local timer = os.startTimer(time)
 	while true do
-		event, key, _, origin, data = os.pullEvent()
-		if event == "modem_message" and origin == receiveChannel then
+		event, key, channel, _, data = os.pullEvent()
+		if event == "modem_message" and channel == receiveChannel then
 			print(string.format("Received message from %s.. ", receiveChannel))
 			return data
 		elseif event == "timer" and key == timer then
@@ -18,17 +18,33 @@ end
 
 -- Waits until a signal is received on a channel for x seconds.
 function network.poll_for(receiveChannel, time)
-	local event, key, origin, data
+	local event, key, channel, _, data
 	-- Timer
 	local timer = os.startTimer(time)
 	while true do
-		event, key, _, origin, data = os.pullEvent()
-		if event == "modem_message" and origin == receiveChannel then
+		event, key, channel, _, data = os.pullEvent()
+		if event == "modem_message" and channel == receiveChannel then
 			print(string.format("Received message from %s.. ", receiveChannel))
 			return data
 		elseif event == "timer" and key == timer then
 			print(string.format("Polled for %s seconds.. ", time))
 			break
+		end
+	end
+end
+
+-- Collects all messages received on a channel for x seconds.
+-- Returns a table of the received messages.
+function network.scan(receiveChannel, time)
+	local messages = {}
+	-- Timer
+	local timer = os.startTimer(time)
+	while true do
+		local event, key, channel, _, data = os.pullEvent()
+		if event == "modem_message" and channel == receiveChannel then
+			table.insert(messages, data)
+		elseif event == "timer" and key == timer then
+			return messages
 		end
 	end
 end

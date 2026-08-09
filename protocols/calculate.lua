@@ -62,12 +62,14 @@ end
 -- can reach onto. Returns a table containing a boolean and
 -- the pivot angle to rotate to.
 -- Note that center pivot is a table from calculate.deg_direction function
-local function pivot_check(center_pivot, ship_pivot)
+-- arm_initial_angle is optional; falls back to geometry.INITIAL_ARM_ANGLE
+local function pivot_check(center_pivot, ship_pivot, arm_initial_angle)
+	local initial_arm_angle = arm_initial_angle or geometry.INITIAL_ARM_ANGLE
 	local local_pos
 	if center_pivot.dir == 1 then
-		local_pos = geometry.INITIAL_ARM_ANGLE + math.rad(center_pivot.angle)
+		local_pos = initial_arm_angle + math.rad(center_pivot.angle)
 	elseif center_pivot.dir == -1 then
-		local_pos = geometry.INITIAL_ARM_ANGLE - math.rad(center_pivot.angle)
+		local_pos = initial_arm_angle - math.rad(center_pivot.angle)
 		if local_pos < 0 then
 			local_pos = math.pi * 2 - local_pos
 		end
@@ -195,39 +197,45 @@ end
 
 -- FIXIT: Figure out a way to take care of dock rotation
 
-function calculate.angles(processed)
+-- arm_config is optional: { pos = vector, radius = number, initial_angle = rad }
+-- Falls back to geometry.ARM, geometry.ARM_RADIUS, geometry.INITIAL_ARM_ANGLE
+function calculate.angles(processed, arm_config)
 	-- Angles are in radians. The arm dock pivot angle is assumed to always be at 0,
 	-- in order to be easily used by the ship pivot angle.
 	-- Horizontal angle spins the pivot bearing (xz plane), while the vertical angle is used to calculate each joint arm angle.
 	-- Ship is assumed to be level
 
+	local arm_pos = (arm_config and arm_config.pos) or geometry.ARM
+	local arm_radius = (arm_config and arm_config.radius) or geometry.ARM_RADIUS
+	local arm_initial_angle = (arm_config and arm_config.initial_angle) or geometry.INITIAL_ARM_ANGLE
+
 	-- Arm to ship angles and magnitude (z is inverted)
 	-- Current arm is initially rotated by 90 degrees
-	local h_angle = quadrant(processed.ship_vector.x - geometry.ARM.x, -(processed.ship_vector.z - geometry.ARM.z))
+	local h_angle = quadrant(processed.ship_vector.x - arm_pos.x, -(processed.ship_vector.z - arm_pos.z))
 	-- Using hypotenuse of x and z to find vertical angle
 	local hypotenuse_xz = math.sqrt(
-		math.pow((processed.ship_vector.x - geometry.ARM.x), 2)
-			+ math.pow((processed.ship_vector.z - geometry.ARM.z), 2)
+		math.pow((processed.ship_vector.x - arm_pos.x), 2)
+			+ math.pow((processed.ship_vector.z - arm_pos.z), 2)
 	)
-	local v_angle = quadrant(hypotenuse_xz, processed.ship_vector.y - geometry.ARM.y)
+	local v_angle = quadrant(hypotenuse_xz, processed.ship_vector.y - arm_pos.y)
 	local magnitude = hypotenuse_xz / math.cos(v_angle)
 	-- Calculate each joint arm angle
 	-- If at quadrant 2, each joint arm angle is the reflection of their corresponding
 	-- angle at quadrant 1. This is done to prevent the arm from going underground.
-	local limb1_angle = reference(v_angle) + math.acos(magnitude / geometry.ARM_RADIUS)
-	local limb2_angle = reference(v_angle) - math.acos(magnitude / geometry.ARM_RADIUS) - limb1_angle
+	local limb1_angle = reference(v_angle) + math.acos(magnitude / arm_radius)
+	local limb2_angle = reference(v_angle) - math.acos(magnitude / arm_radius) - limb1_angle
 
 	-- Account for idle position
 	limb1_angle = limb1_angle - geometry.LIMB_1
 	limb2_angle = limb2_angle - geometry.LIMB_2
 	-- Calculate center pivot angle and direction
-	local center_pivot = calculate.deg_direction(geometry.INITIAL_ARM_ANGLE - h_angle)
+	local center_pivot = calculate.deg_direction(arm_initial_angle - h_angle)
 	print(string.format("h angle: %f", math.deg(h_angle)))
 	print(string.format("center pivot: %f, dir: %f", center_pivot.angle, center_pivot.dir))
 
 	-- Calculate dock pivot angle and direction.
 	-- The initial dock pivot angle is the same as the center pivot angle.
-	local dock_pivot = pivot_check(center_pivot, processed.pivot_angle)
+	local dock_pivot = pivot_check(center_pivot, processed.pivot_angle, arm_initial_angle)
 
 	if dock_pivot.bool and limb1_angle ~= nil and limb2_angle ~= nil then
 		-- Quick fix to optimize pivot angle rotation when above 180 degrees
