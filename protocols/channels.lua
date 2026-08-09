@@ -13,8 +13,8 @@ return {
 	-- so ships can find the closest reachable arm. Bearing computers
 	-- also use it to auto-discover their arm controller.
 	ARM_HEARTBEAT = 65535,
-	-- Each arm listens on ARM_BASE + os.getComputerID()
-	ARM_BASE = 0,
+	-- Each arm listens on ARM_BASE + its configured ARM_ID
+	ARM_BASE = 5000,
 	-- Each ship listens on SHIP_BASE + os.getComputerID()
 	SHIP_BASE = 10000,
 }
