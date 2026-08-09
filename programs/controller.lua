@@ -6,6 +6,9 @@ local movement = require("programs.movement")
 local geometry = require("protocols.geometry")
 
 local arm_id = os.getComputerID()
+if arm_id > 9000 then
+	error("Computer ID " .. arm_id .. " is too large for the channel scheme (max 9000)", 0)
+end
 local arm_channel = channels.ARM_BASE + arm_id
 local ack_channel = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_ACK_OFFSET
 

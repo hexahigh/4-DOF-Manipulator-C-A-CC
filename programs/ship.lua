@@ -6,6 +6,9 @@ local geometry = require("protocols.geometry")
 local calculate = require("protocols.calculate")
 
 local ship_id = os.getComputerID()
+if ship_id > 9000 then
+	error("Computer ID " .. ship_id .. " is too large for the channel scheme (max 9000)", 0)
+end
 local ship_channel = channels.SHIP_BASE + ship_id
 
 local modem = peripheral.find("modem") or error("No modem", 0)

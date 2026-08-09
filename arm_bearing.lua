@@ -47,6 +47,10 @@ end
 print(string.format("Found arm controller %d (%d blocks away)", arm_id, closest_dist))
 modem.close(channels.ARM_HEARTBEAT)
 
+if arm_id > 9000 then
+	error("Arm controller ID " .. arm_id .. " is too large for the channel scheme (max 9000)", 0)
+end
+
 local localChannel = channels.BEARING_BASE + arm_id * 5 + bearing_offset
 local ackChannel = channels.BEARING_BASE + arm_id * 5 + channels.BEARING_ACK_OFFSET
 
