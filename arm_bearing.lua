@@ -51,12 +51,16 @@ while true do
 
 		modem.transmit(ackChannel, localChannel, true)
 	else
-		gearshift.rotate(data.angle, data.dir)
+		if data.angle ~= data.angle or data.dir == nil then
+			print("Received invalid rotation, ignoring..")
+		else
+			gearshift.rotate(data.angle, data.dir)
 
-		while gearshift.isRunning() do
-			sleep(0.1)
+			while gearshift.isRunning() do
+				sleep(0.1)
+			end
+
+			modem.transmit(ackChannel, localChannel, true)
 		end
-
-		modem.transmit(ackChannel, localChannel, true)
 	end
 end

@@ -219,6 +219,14 @@ function calculate.angles(processed, arm_config)
 	)
 	local v_angle = quadrant(hypotenuse_xz, processed.ship_vector.y - arm_pos.y)
 	local magnitude = hypotenuse_xz / math.cos(v_angle)
+	-- Dock is out of the arm's reach. math.acos would return NaN
+	-- for magnitudes above the radius, so reject early.
+	if magnitude > arm_radius then
+		print(string.format("Dock magnitude %f exceeds arm radius %f", magnitude, arm_radius))
+		return {
+			possible = false,
+		}
+	end
 	-- Calculate each joint arm angle
 	-- If at quadrant 2, each joint arm angle is the reflection of their corresponding
 	-- angle at quadrant 1. This is done to prevent the arm from going underground.
